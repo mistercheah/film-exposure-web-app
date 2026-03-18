@@ -116,11 +116,6 @@
         </div>
 
         <button id="calculateBtn" class="primary">Calculate Exposure</button>
-        <div class="actionRow">
-          <button id="saveResultBtn" class="secondaryBtn">Save Result</button>
-          <button id="viewHistoryBtn" class="secondaryBtn">View History</button>
-          <button id="exportHistoryBtn" class="secondaryBtn">Export JSON</button>
-        </div>
       </section>
 
       <aside class="stack">
@@ -176,7 +171,7 @@
         <section class="plainRows">
           <div class="row"><span>Metered Exposure</span><strong id="resMetered"></strong></div>
           <div class="line"></div>
-          <div class="row"><span>Practical Shutter</span><strong id="resPracticalShutter"></strong></div>
+          <div class="row"><span>Calculated Exposure</span><strong id="resCalculated"></strong></div>
           <div class="line"></div>
           <div class="row"><span>Rounding Note</span><strong class="soft" id="resRoundingNote"></strong></div>
           <div class="line"></div>
@@ -188,11 +183,12 @@
         </section>
 
         <section class="finalPanel">
-          <div class="finalTitle">Final Exposure</div>
+          <div class="finalTitle">Practical Exposure</div>
           <div class="panelDivider faint"></div>
-          <div class="finalValue" id="resFinal"></div>
+          <div class="finalValue" id="resFinalPractical"></div>
           <div class="finalNote" id="resFinalNote"></div>
-          <div class="finalSubNote" id="resFinalPractical"></div>
+          <div class="finalSubNote" id="resFinal"></div>
+          <div class="finalSubNote subtle" id="resRoundingSummary"></div>
         </section>
 
         <div class="dual">
@@ -206,19 +202,14 @@
           </section>
         </div>
 
+        <div class="resultActions">
+          <button id="saveResultBtn" class="secondaryAction">Save Result</button>
+          <button id="saveSettingsBtn" class="secondaryAction">Save Settings</button>
+          <button id="exportResultBtn" class="secondaryAction">Export Result</button>
+          <button id="exportHistoryBtn" class="secondaryAction">Export History</button>
+        </div>
+
         <button id="newCalcBtn" class="primary">New Calculation</button>
-      </section>
-    
-    <main id="historyScreen" class="resultWrap hidden">
-      <section class="resultCard">
-        <div class="resultHeader">
-          <button id="historyBackBtn" class="backBtn">←</button>
-          <h2>Saved History</h2>
-        </div>
-        <div class="historyActions">
-          <button id="clearHistoryBtn" class="secondaryBtn dangerBtn">Clear History</button>
-        </div>
-        <div id="historyList" class="historyList"></div>
       </section>
     </main>
   </div>

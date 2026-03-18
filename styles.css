@@ -131,79 +131,36 @@ input[readonly]{color:#d2d8e4}
 }
 
 
-.actionRow{
-  grid-column:1/-1;
-  display:flex;
+.resultActions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:12px;
-  flex-wrap:wrap;
+  margin:8px 0 14px;
 }
 
-.secondaryBtn{
+.secondaryAction{
+  width:100%;
   border:1px solid var(--line);
-  background:#1a1f29;
+  background:rgba(255,255,255,.05);
   color:#fff;
-  padding:14px 18px;
+  padding:14px 16px;
   border-radius:16px;
+  font-size:16px;
   font-weight:700;
   cursor:pointer;
 }
 
-.dangerBtn{
-  background:#3a1a1a;
+.secondaryAction:hover{
+  background:rgba(255,255,255,.08);
 }
 
-.historyActions{
-  display:flex;
-  justify-content:flex-end;
-  margin-bottom:16px;
-}
-
-.historyList{
-  display:grid;
-  gap:14px;
-}
-
-.historyItem{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.04);
-  border-radius:20px;
-  padding:18px;
-}
-
-.historyTop{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:10px;
-}
-
-.historyTitle{
-  font-size:20px;
-  font-weight:700;
-}
-
-.historyMeta{
-  color:var(--soft);
-  font-size:14px;
-}
-
-.historyGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px 18px;
-}
-
-.emptyState{
-  color:var(--soft);
-  text-align:center;
-  padding:30px 10px;
+.subtle{
+  opacity:.85;
+  font-size:15px;
 }
 
 @media (max-width:900px){
-  .actionRow{
-    flex-direction:column;
-  }
-  .historyGrid{
+  .resultActions{
     grid-template-columns:1fr;
   }
 }
