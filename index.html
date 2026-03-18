@@ -14,7 +14,7 @@
         <p>Upload-based scene metering with film-aware exposure, highlight/shadow bias, lens compensation, filter compensation, and reciprocity adjustment.</p>
       </div>
       <div class="header-right">
-        <div class="version">v6.0</div>
+        <div class="version">v7.0</div>
         <div class="segmented">
           <button id="showInputBtn" class="seg active">Input Screen</button>
           <button id="showResultBtn" class="seg">Result Screen</button>
@@ -171,6 +171,10 @@
         <section class="plainRows">
           <div class="row"><span>Metered Exposure</span><strong id="resMetered"></strong></div>
           <div class="line"></div>
+          <div class="row"><span>Practical Shutter</span><strong id="resPracticalShutter"></strong></div>
+          <div class="line"></div>
+          <div class="row"><span>Rounding Note</span><strong class="soft" id="resRoundingNote"></strong></div>
+          <div class="line"></div>
           <div class="row"><span>Reciprocity Adjustment</span><strong id="resReciprocity"></strong></div>
           <div class="line"></div>
           <div class="row"><span>Scene Bias</span><strong class="soft" id="resSceneBias"></strong></div>
@@ -183,6 +187,7 @@
           <div class="panelDivider faint"></div>
           <div class="finalValue" id="resFinal"></div>
           <div class="finalNote" id="resFinalNote"></div>
+          <div class="finalSubNote" id="resFinalPractical"></div>
         </section>
 
         <div class="dual">

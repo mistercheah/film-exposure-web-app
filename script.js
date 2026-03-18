@@ -65,6 +65,48 @@ function secondsToLabel(seconds) {
   return `1/${denominator} sec`;
 }
 
+function roundToPracticalShutter(seconds) {
+  const standardSeconds = [
+    1/8000, 1/4000, 1/2000, 1/1000, 1/500, 1/250, 1/125, 1/60, 1/30, 1/15, 1/8, 1/4, 1/2,
+    1, 2, 4, 8, 15, 30, 60, 120, 240, 480
+  ];
+  let best = standardSeconds[0];
+  let bestDiff = Math.abs(Math.log2(seconds / best));
+  for (const s of standardSeconds) {
+    const diff = Math.abs(Math.log2(seconds / s));
+    if (diff < bestDiff) {
+      best = s;
+      bestDiff = diff;
+    }
+  }
+  return best;
+}
+
+function roundToNegativeFriendlyShutter(seconds) {
+  const standardSeconds = [
+    1/8000, 1/4000, 1/2000, 1/1000, 1/500, 1/250, 1/125, 1/60, 1/30, 1/15, 1/8, 1/4, 1/2,
+    1, 2, 4, 8, 15, 30, 60, 120, 240, 480
+  ];
+  // choose same or longer exposure for negative film friendliness
+  let candidate = standardSeconds[standardSeconds.length - 1];
+  for (const s of standardSeconds) {
+    if (s >= seconds) {
+      candidate = s;
+      break;
+    }
+  }
+  return candidate;
+}
+
+function shutterRoundingNote(actualSeconds, practicalSeconds) {
+  const stopDiff = Math.log2(practicalSeconds / actualSeconds);
+  const abs = Math.abs(stopDiff);
+  const rounded = abs < 0.05 ? "0.0" : abs.toFixed(1);
+  if (abs < 0.05) return "Already close to a standard shutter speed.";
+  if (stopDiff > 0) return `Rounded to a longer exposure for practical use (+${rounded} stop).`;
+  return `Rounded to a shorter exposure for practical use (-${rounded} stop).`;
+}
+
 function reciprocityAdjustedSeconds(filmKey, seconds) {
   if (seconds < 1) return { applied: false, adjusted: seconds };
   switch (filmKey) {
@@ -159,6 +201,9 @@ function updateAll() {
   const filter = filters[result.filterKey];
   const metered = `${secondsToLabel(result.meteredSeconds)} at ${result.aperture}`;
   const final = `${secondsToLabel(result.finalSeconds)} at ${result.aperture}`;
+  const practicalShutterSeconds = roundToNegativeFriendlyShutter(result.finalSeconds);
+  const practicalLabel = `${secondsToLabel(practicalShutterSeconds)} at ${result.aperture}`;
+  const roundingNote = shutterRoundingNote(result.finalSeconds, practicalShutterSeconds);
   const sceneEvValue = (analyzedEv ?? result.ev100).toFixed(1);
 
   $("lightingSummary").textContent =
@@ -187,6 +232,8 @@ function updateAll() {
   $("resFilterComp").textContent = filter.stops ? `+${filter.stops} stop` : "0 stop";
 
   $("resMetered").textContent = metered;
+  $("resPracticalShutter").textContent = practicalLabel;
+  $("resRoundingNote").textContent = roundingNote;
   $("resReciprocity").textContent = result.reciprocityApplied ? "Applied" : "Not needed";
   $("resSceneBias").textContent = describeSceneBias(result.sceneBias);
   $("resReciprocityNote").textContent = result.reciprocityApplied
@@ -195,6 +242,7 @@ function updateAll() {
 
   $("resFinal").textContent = final;
   $("resFinalNote").textContent = `Adjusted for ${filter.stops ? "filter and " : ""}${result.reciprocityApplied ? "reciprocity failure" : "selected filter"}`;
+  $("resFinalPractical").textContent = `Use ${practicalLabel} as the nearest practical shutter setting.`;
   $("resEv").textContent = `EV ${sceneEvValue}`;
   $("resTip").textContent = getTip(result);
 }

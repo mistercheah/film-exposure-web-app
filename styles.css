@@ -121,3 +121,11 @@ input[readonly]{color:#d2d8e4}
     align-items: flex-start;
   }
 }
+
+
+.finalSubNote{
+  margin-top:10px;
+  font-size:16px;
+  color:#d8f3df;
+  opacity:.95;
+}
