@@ -1,4 +1,4 @@
-const APP_VERSION = "v9.0";
+const APP_VERSION = "v9.1";
 
 const films = {
   fomapan200: { name: "Fomapan 200", boxIso: 200, suggestedIso: 160 },
@@ -513,15 +513,13 @@ function exportHistory() {
 
   const escapeCsv = (value) => {
     const str = String(value ?? "");
-    if (/[",
-]/.test(str)) {
+    if (/[\",\n]/.test(str)) {
       return '"' + str.replace(/"/g, '""') + '"';
     }
     return str;
   };
 
-  const csvContent = csvRows.map(row => row.map(escapeCsv).join(",")).join("
-");
+  const csvContent = csvRows.map(row => row.map(escapeCsv).join(",")).join("\n");
   const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g, "-");
 
   downloadFile(`film_meter_history_${stamp}.json`, JSON.stringify(jsonPayload, null, 2), "application/json");
