@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Film Exposure Assistant</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div>
+        <h1>Film Exposure Assistant</h1>
+        <p>Upload-based scene metering with film-aware exposure, filter compensation, reciprocity adjustment, and simple image brightness analysis.</p>
+      </div>
+      <div class="segmented">
+        <button id="showInputBtn" class="seg active">Input Screen</button>
+        <button id="showResultBtn" class="seg">Result Screen</button>
+      </div>
+    </header>
+
+    <main id="inputScreen" class="grid">
+      <section class="card">
+        <h2>Enter Exposure Details</h2>
+
+        <div class="field full">
+          <label for="filmStock">Film Stock</label>
+          <select id="filmStock"></select>
+        </div>
+
+        <div class="field">
+          <label for="boxIso">Box ISO</label>
+          <input id="boxIso" type="text" readonly />
+        </div>
+
+        <div class="field">
+          <label for="suggestedIso">Suggested ISO</label>
+          <input id="suggestedIso" type="text" readonly />
+        </div>
+
+        <div class="field full">
+          <label for="ratedIso">Rated ISO (EI)</label>
+          <input id="ratedIso" type="number" />
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="field full">
+          <label for="imageUpload">Upload Scene Image</label>
+          <label class="uploadBox" for="imageUpload">
+            <input id="imageUpload" type="file" accept="image/*" />
+            <div class="uploadTitle">Choose image to analyze</div>
+            <div class="uploadText">Upload a photo taken with your phone for scene analysis</div>
+            <div id="uploadedName" class="pill hidden"></div>
+            <div id="analysisStatus" class="analysisStatus">No image analyzed yet.</div>
+            <img id="imagePreview" class="hidden" alt="Uploaded preview" />
+          </label>
+          <canvas id="analysisCanvas" class="hidden"></canvas>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="field">
+          <label for="lightingSource">Lighting Source</label>
+          <select id="lightingSource"></select>
+        </div>
+
+        <div class="field">
+          <label for="aperture">Preferred Aperture</label>
+          <select id="aperture"></select>
+        </div>
+
+        <div class="field">
+          <label for="compensation">Exposure Compensation (EV)</label>
+          <input id="compensation" type="number" step="0.5" value="0" />
+        </div>
+
+        <div class="field">
+          <label for="meteringMode">Metering Mode</label>
+          <select id="meteringMode">
+            <option>Weighted Average</option>
+            <option>Zone System</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="priority">Zone Priority</label>
+          <select id="priority">
+            <option>Normal</option>
+            <option>Protect Highlights</option>
+            <option>Open Shadows</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="filter">Filter</label>
+          <select id="filter"></select>
+        </div>
+
+        <div class="banner">
+          <div>Reciprocity check is included. If the metered exposure becomes long enough, the final time will be adjusted automatically.</div>
+          <span class="pill green">Reciprocity Aware</span>
+        </div>
+
+        <button id="calculateBtn" class="primary">Calculate Exposure</button>
+      </section>
+
+      <aside class="stack">
+        <section class="card compact">
+          <h3>Current Lighting Preset</h3>
+          <div id="lightingSummary" class="muted"></div>
+        </section>
+
+        <section class="card compact">
+          <h3>Live Summary</h3>
+          <div class="summaryRow"><span>Film</span><strong id="sumFilm"></strong></div>
+          <div class="summaryRow"><span>Rated ISO</span><strong id="sumRatedIso"></strong></div>
+          <div class="summaryRow"><span>Filter</span><strong id="sumFilter"></strong></div>
+          <div class="summaryRow"><span>Metered Exposure</span><strong id="sumMetered"></strong></div>
+          <div class="summaryRow"><span>Final Exposure</span><strong class="greenText" id="sumFinal"></strong></div>
+          <div class="summaryRow"><span>Scene EV</span><strong id="sumSceneEv"></strong></div>
+        </section>
+
+        <section class="card compact info">
+          <h3>Prototype Note</h3>
+          <div class="muted">This prototype now estimates scene brightness from the uploaded image for Phase 1. Lighting presets remain available as a fallback or manual override.</div>
+        </section>
+      </aside>
+    </main>
+
+    <main id="resultScreen" class="resultWrap hidden">
+      <section class="resultCard">
+        <div class="resultHeader">
+          <button id="backBtn" class="backBtn">←</button>
+          <h2>Exposure Result</h2>
+        </div>
+
+        <section class="panel">
+          <div class="panelTitle">Film: <span id="resFilm"></span></div>
+          <div class="panelDivider"></div>
+          <div class="row"><span>Box ISO</span><strong id="resBoxIso"></strong></div>
+          <div class="row"><span>Suggested ISO</span><strong id="resSuggestedIso"></strong></div>
+          <div class="row"><span>Rated ISO (EI)</span><strong id="resRatedIso"></strong></div>
+        </section>
+
+        <section class="panel">
+          <div class="panelTitle">Filter</div>
+          <div class="panelDivider"></div>
+          <div class="row"><span>Filter Type</span><strong id="resFilterType"></strong></div>
+          <div class="row"><span>Filter Factor</span><strong id="resFilterFactor"></strong></div>
+          <div class="row"><span>Filter Compensation</span><strong id="resFilterComp"></strong></div>
+        </section>
+
+        <section class="plainRows">
+          <div class="row"><span>Metered Exposure</span><strong id="resMetered"></strong></div>
+          <div class="line"></div>
+          <div class="row"><span>Reciprocity Adjustment</span><strong id="resReciprocity"></strong></div>
+          <div class="line"></div>
+          <div class="row"><span>Reciprocity Note</span><strong class="soft" id="resReciprocityNote"></strong></div>
+        </section>
+
+        <section class="finalPanel">
+          <div class="finalTitle">Final Exposure</div>
+          <div class="panelDivider faint"></div>
+          <div class="finalValue" id="resFinal"></div>
+          <div class="finalNote" id="resFinalNote"></div>
+        </section>
+
+        <div class="dual">
+          <section class="card compact">
+            <h3>Scene Brightness</h3>
+            <div class="big" id="resEv"></div>
+          </section>
+          <section class="card compact">
+            <h3>Exposure Tip</h3>
+            <div class="tip" id="resTip"></div>
+          </section>
+        </div>
+
+        <button id="newCalcBtn" class="primary">New Calculation</button>
+      </section>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
