@@ -87,6 +87,7 @@ function getSceneBias() {
 
 function calculateExposure() {
   const filmKey = $("filmStock").value;
+  const filmId = $("filmId").value || "";
   const ratedIso = Number($("ratedIso").value) || films[filmKey].suggestedIso;
   const aperture = $("aperture").value;
   const lightingKey = $("lightingSource").value;
@@ -115,6 +116,7 @@ function calculateExposure() {
 
   return {
     filmKey,
+    filmId,
     ratedIso,
     effectiveRatedIso,
     aperture,
@@ -165,6 +167,7 @@ function updateAll() {
       : `${lightingPresets[result.lightingKey].label} · EV ${lightingPresets[result.lightingKey].ev}`;
 
   $("sumFilm").textContent = film.name;
+  $("sumFilmId").textContent = result.filmId || "-";
   $("sumRatedIso").textContent = result.ratedIso;
   $("sumEffectiveIso").textContent = Math.round(result.effectiveRatedIso);
   $("sumFilter").textContent = filter.label;
@@ -177,6 +180,7 @@ function updateAll() {
   $("resSuggestedIso").textContent = film.suggestedIso;
   $("resRatedIso").textContent = result.ratedIso;
   $("resEffectiveIso").textContent = Math.round(result.effectiveRatedIso);
+  $("resFilmId").textContent = result.filmId || "-";
 
   $("resFilterType").textContent = filter.label;
   $("resFilterFactor").textContent = `x${filter.factor}`;
@@ -269,7 +273,7 @@ function init() {
 
   updateFilmFields();
 
-  ["ratedIso","lightingSource","aperture","compensation","lensCompensation","meteringMode","priority","filter"].forEach(id => {
+  ["filmId","ratedIso","lightingSource","aperture","compensation","lensCompensation","meteringMode","priority","filter"].forEach(id => {
     $(id).addEventListener("input", updateAll);
     $(id).addEventListener("change", updateAll);
   });

@@ -1,8 +1,9 @@
-Film Exposure Web App v5
+Film Exposure Web App v6
 
 What is new in this version
-- Added visible app version label in the header
-- Current version shown in the app: v5.0
+- Added Film ID / Location input field
+- Film ID / Location now appears in live summary and result screen
+- Current version shown in the app: v6.0
 - Keeps long exposure display in minutes and seconds
 - Keeps lens compensation in stops
 - Keeps effective ISO display

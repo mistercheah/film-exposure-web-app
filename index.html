@@ -14,7 +14,7 @@
         <p>Upload-based scene metering with film-aware exposure, highlight/shadow bias, lens compensation, filter compensation, and reciprocity adjustment.</p>
       </div>
       <div class="header-right">
-        <div class="version">v5.0</div>
+        <div class="version">v6.0</div>
         <div class="segmented">
           <button id="showInputBtn" class="seg active">Input Screen</button>
           <button id="showResultBtn" class="seg">Result Screen</button>
@@ -44,6 +44,11 @@
         <div class="field full">
           <label for="ratedIso">Rated ISO (EI)</label>
           <input id="ratedIso" type="number" />
+        </div>
+
+        <div class="field full">
+          <label for="filmId">Film ID / Location</label>
+          <input id="filmId" type="text" placeholder="e.g. Roll3_KL_City" />
         </div>
 
         <div class="separator"></div>
@@ -122,6 +127,7 @@
         <section class="card compact">
           <h3>Live Summary</h3>
           <div class="summaryRow"><span>Film</span><strong id="sumFilm"></strong></div>
+          <div class="summaryRow"><span>Film ID / Location</span><strong id="sumFilmId"></strong></div>
           <div class="summaryRow"><span>Rated ISO</span><strong id="sumRatedIso"></strong></div>
           <div class="summaryRow"><span>Effective ISO</span><strong id="sumEffectiveIso"></strong></div>
           <div class="summaryRow"><span>Filter</span><strong id="sumFilter"></strong></div>
@@ -151,6 +157,7 @@
           <div class="row"><span>Suggested ISO</span><strong id="resSuggestedIso"></strong></div>
           <div class="row"><span>Rated ISO (EI)</span><strong id="resRatedIso"></strong></div>
           <div class="row"><span>Effective ISO</span><strong id="resEffectiveIso"></strong></div>
+          <div class="row"><span>Film ID / Location</span><strong id="resFilmId"></strong></div>
         </section>
 
         <section class="panel">
