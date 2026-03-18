@@ -98,3 +98,26 @@ input[readonly]{color:#d2d8e4}
   .finalValue{font-size:36px}
   .finalNote,.tip{font-size:18px}
 }
+
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.version {
+  font-size: 14px;
+  color: var(--soft);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+}
+
+@media (max-width:900px){
+  .header-right {
+    align-items: flex-start;
+  }
+}
