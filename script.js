@@ -300,13 +300,175 @@ function analyzeImage(file) {
   };
 }
 
-function setScreen(screen) {
-  const isInput = screen === "input";
-  $("inputScreen").classList.toggle("hidden", !isInput);
-  $("resultScreen").classList.toggle("hidden", isInput);
-  $("showInputBtn").classList.toggle("active", isInput);
-  $("showResultBtn").classList.toggle("active", !isInput);
+
+
+const STORAGE_SETTINGS_KEY = "filmMeterSettings";
+const STORAGE_HISTORY_KEY = "filmMeterHistory";
+
+function getCurrentState() {
+  const result = calculateExposure();
+  const film = films[result.filmKey];
+  const filter = filters[result.filterKey];
+  const sceneEvValue = Number((analyzedEv ?? result.ev100).toFixed(1));
+  return {
+    id: `meter_${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    appVersion: "v8.0",
+    film: {
+      key: result.filmKey,
+      name: film.name,
+      boxIso: film.boxIso,
+      suggestedIso: film.suggestedIso,
+      ratedIso: result.ratedIso,
+      effectiveIso: Math.round(result.effectiveRatedIso),
+      filmId: result.filmId || ""
+    },
+    lens: {
+      lensCompensationStops: Number($("lensCompensation").value || 0)
+    },
+    scene: {
+      lightingSource: result.lightingKey,
+      estimatedEv: sceneEvValue,
+      averageLuma: imageStats ? Number(imageStats.avgLuma.toFixed(3)) : null,
+      shadowMean: imageStats ? Number(imageStats.shadowMean.toFixed(3)) : null,
+      highlightMean: imageStats ? Number(imageStats.highlightMean.toFixed(3)) : null,
+      contrast: imageStats ? Number(imageStats.contrast.toFixed(3)) : null,
+      sceneBiasEv: Number(result.sceneBias.toFixed(1))
+    },
+    exposure: {
+      preferredAperture: result.aperture,
+      meteringMode: $("meteringMode").value,
+      zonePriority: $("priority").value,
+      exposureCompensationEv: Number($("compensation").value || 0),
+      filterKey: result.filterKey,
+      filterLabel: filter.label,
+      filterFactor: filter.factor,
+      filterStops: filter.stops
+    },
+    result: {
+      meteredExposureSeconds: Number(result.meteredSeconds.toFixed(4)),
+      meteredExposureLabel: `${secondsToLabel(result.meteredSeconds)} at ${result.aperture}`,
+      finalExposureSeconds: Number(result.finalSeconds.toFixed(4)),
+      finalExposureLabel: `${secondsToLabel(result.finalSeconds)} at ${result.aperture}`,
+      practicalExposureLabel: `${secondsToLabel(roundToNegativeFriendlyShutter(result.finalSeconds))} at ${result.aperture}`,
+      reciprocityApplied: result.reciprocityApplied
+    }
+  };
 }
+
+function saveSettings() {
+  const settings = {
+    appVersion: "v8.0",
+    filmStock: $("filmStock").value,
+    filmId: $("filmId").value || "",
+    ratedIso: $("ratedIso").value,
+    lightingSource: $("lightingSource").value,
+    preferredAperture: $("aperture").value,
+    exposureCompensation: $("compensation").value,
+    lensCompensation: $("lensCompensation").value,
+    meteringMode: $("meteringMode").value,
+    zonePriority: $("priority").value,
+    filter: $("filter").value
+  };
+  localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_SETTINGS_KEY);
+    if (!raw) return;
+    const settings = JSON.parse(raw);
+    if (settings.filmStock && films[settings.filmStock]) $("filmStock").value = settings.filmStock;
+    $("filmId").value = settings.filmId || "";
+    if (settings.ratedIso) $("ratedIso").value = settings.ratedIso;
+    if (settings.lightingSource && lightingPresets[settings.lightingSource]) $("lightingSource").value = settings.lightingSource;
+    if (settings.preferredAperture) $("aperture").value = settings.preferredAperture;
+    if (settings.exposureCompensation !== undefined) $("compensation").value = settings.exposureCompensation;
+    if (settings.lensCompensation !== undefined) $("lensCompensation").value = settings.lensCompensation;
+    if (settings.meteringMode) $("meteringMode").value = settings.meteringMode;
+    if (settings.zonePriority) $("priority").value = settings.zonePriority;
+    if (settings.filter && filters[settings.filter]) $("filter").value = settings.filter;
+  } catch (e) {
+    console.error("Failed to load settings", e);
+  }
+}
+
+function loadHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_HISTORY_KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHistory(history) {
+  localStorage.setItem(STORAGE_HISTORY_KEY, JSON.stringify(history));
+}
+
+function saveCurrentResult() {
+  const entry = getCurrentState();
+  const history = loadHistory();
+  history.unshift(entry);
+  saveHistory(history);
+  saveSettings();
+  renderHistory();
+  alert("Result saved on this device.");
+}
+
+function renderHistory() {
+  const list = $("historyList");
+  const history = loadHistory();
+  if (!history.length) {
+    list.innerHTML = '<div class="emptyState">No saved results yet.</div>';
+    return;
+  }
+  list.innerHTML = history.map(item => `
+    <div class="historyItem">
+      <div class="historyTop">
+        <div>
+          <div class="historyTitle">${item.film.filmId || item.film.name}</div>
+          <div class="historyMeta">${new Date(item.timestamp).toLocaleString()}</div>
+        </div>
+        <div class="historyMeta">v${(item.appVersion || "v8.0").replace(/^v/,"")}</div>
+      </div>
+      <div class="historyGrid">
+        <div><strong>Film:</strong> ${item.film.name}</div>
+        <div><strong>Rated / Effective ISO:</strong> ${item.film.ratedIso} / ${item.film.effectiveIso}</div>
+        <div><strong>Scene EV:</strong> ${item.scene.estimatedEv ?? "-"}</div>
+        <div><strong>Filter:</strong> ${item.exposure.filterLabel}</div>
+        <div><strong>Final Exposure:</strong> ${item.result.finalExposureLabel}</div>
+        <div><strong>Practical Shutter:</strong> ${item.result.practicalExposureLabel}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function exportHistory() {
+  const history = loadHistory();
+  const blob = new Blob([JSON.stringify({ history }, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "film-meter-history.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearHistory() {
+  if (!confirm("Clear all saved history on this device?")) return;
+  localStorage.removeItem(STORAGE_HISTORY_KEY);
+  renderHistory();
+}
+
+function setScreen(screen) {
+  $("inputScreen").classList.toggle("hidden", screen !== "input");
+  $("resultScreen").classList.toggle("hidden", screen !== "result");
+  $("historyScreen").classList.toggle("hidden", screen !== "history");
+  $("showInputBtn").classList.toggle("active", screen === "input");
+  $("showResultBtn").classList.toggle("active", screen === "result");
+}
+
+
 
 function init() {
   fillSelect($("filmStock"), films, v => v.name);
@@ -319,11 +481,12 @@ function init() {
   $("filter").value = "none";
   $("aperture").value = "f/8";
 
+  loadSettings();
   updateFilmFields();
 
   ["filmId","ratedIso","lightingSource","aperture","compensation","lensCompensation","meteringMode","priority","filter"].forEach(id => {
-    $(id).addEventListener("input", updateAll);
-    $(id).addEventListener("change", updateAll);
+    $(id).addEventListener("input", () => { updateAll(); saveSettings(); });
+    $(id).addEventListener("change", () => { updateAll(); saveSettings(); });
   });
 
   $("filmStock").addEventListener("change", updateFilmFields);
@@ -345,7 +508,13 @@ function init() {
   });
   $("backBtn").addEventListener("click", () => setScreen("input"));
   $("newCalcBtn").addEventListener("click", () => setScreen("input"));
+  $("saveResultBtn").addEventListener("click", saveCurrentResult);
+  $("viewHistoryBtn").addEventListener("click", () => { renderHistory(); setScreen("history"); });
+  $("exportHistoryBtn").addEventListener("click", exportHistory);
+  $("historyBackBtn").addEventListener("click", () => setScreen("input"));
+  $("clearHistoryBtn").addEventListener("click", clearHistory);
 
+  renderHistory();
   updateAll();
 }
 

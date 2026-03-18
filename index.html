@@ -14,7 +14,7 @@
         <p>Upload-based scene metering with film-aware exposure, highlight/shadow bias, lens compensation, filter compensation, and reciprocity adjustment.</p>
       </div>
       <div class="header-right">
-        <div class="version">v7.0</div>
+        <div class="version">v8.0</div>
         <div class="segmented">
           <button id="showInputBtn" class="seg active">Input Screen</button>
           <button id="showResultBtn" class="seg">Result Screen</button>
@@ -116,6 +116,11 @@
         </div>
 
         <button id="calculateBtn" class="primary">Calculate Exposure</button>
+        <div class="actionRow">
+          <button id="saveResultBtn" class="secondaryBtn">Save Result</button>
+          <button id="viewHistoryBtn" class="secondaryBtn">View History</button>
+          <button id="exportHistoryBtn" class="secondaryBtn">Export JSON</button>
+        </div>
       </section>
 
       <aside class="stack">
@@ -202,6 +207,18 @@
         </div>
 
         <button id="newCalcBtn" class="primary">New Calculation</button>
+      </section>
+    
+    <main id="historyScreen" class="resultWrap hidden">
+      <section class="resultCard">
+        <div class="resultHeader">
+          <button id="historyBackBtn" class="backBtn">←</button>
+          <h2>Saved History</h2>
+        </div>
+        <div class="historyActions">
+          <button id="clearHistoryBtn" class="secondaryBtn dangerBtn">Clear History</button>
+        </div>
+        <div id="historyList" class="historyList"></div>
       </section>
     </main>
   </div>
