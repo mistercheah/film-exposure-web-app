@@ -1,14 +1,22 @@
-Film Exposure Web App v8
+Film Exposure Web App v9
 
 What is new in this version
-- Practical exposure is now displayed first in the result card
-- Calculated exposure is shown below it
-- Save Result and Save Settings moved to the result screen
-- Added Export Result and Export History on the result screen
-- Export includes all major inputs, scene analysis, outputs, and metadata
-- Current version shown in the app: v8.0
+- Removed Export Result
+- Kept Save Result for building shot history on the device
+- Export History now downloads BOTH:
+  - JSON backup
+  - CSV spreadsheet-ready file
+- Export History warns if there are no saved entries
+- Save Result now confirms the current history count
+- Current version shown in the app: v9.0
 
-What export includes
+Recommended workflow
+1. In the field, review the result and tap Save Result
+2. Continue saving each shot result during the roll
+3. At home, tap Export History (JSON + CSV)
+4. Open the CSV in Excel or Google Sheets
+
+What export history includes
 - Film details
 - Film ID / Location
 - Rated ISO and effective ISO
@@ -21,6 +29,7 @@ What export includes
 - Practical exposure
 - Reciprocity status
 - Timestamp and app version
+- Image filename
 
 How to update on GitHub / Vercel
 1. Unzip this package.
@@ -32,7 +41,3 @@ How to update on GitHub / Vercel
    - README.txt
 4. Commit the changes.
 5. Vercel will redeploy automatically.
-
-Local device storage
-- Settings are stored in localStorage under filmMeterSettings
-- Saved results are stored in localStorage under filmMeterHistory

@@ -1,4 +1,4 @@
-const APP_VERSION = "v8.0";
+const APP_VERSION = "v9.0";
 
 const films = {
   fomapan200: { name: "Fomapan 200", boxIso: 200, suggestedIso: 160 },
@@ -397,7 +397,7 @@ function saveResultToLocal() {
   const history = getSavedHistory();
   history.push(payload);
   localStorage.setItem("filmMeterHistory", JSON.stringify(history));
-  alert("Result saved on this device.");
+  alert(`Result saved on this device. History count: ${history.length}.`);
 }
 
 function saveSettingsToLocal() {
@@ -422,16 +422,110 @@ function saveSettingsToLocal() {
   alert("Settings saved on this device.");
 }
 
-function exportCurrentResult() {
-  const payload = buildCurrentPayload(calculateExposure());
-  const stamp = payload.timestamp.slice(0,19).replace(/[:T]/g, "-");
-  const safeId = (payload.film.filmId || "result").replace(/[^a-zA-Z0-9_-]+/g, "_");
-  downloadFile(`${stamp}_${safeId}.json`, JSON.stringify(payload, null, 2), "application/json");
-}
 
 function exportHistory() {
   const history = getSavedHistory();
-  downloadFile(`film_meter_history.json`, JSON.stringify({ appVersion: APP_VERSION, history }, null, 2), "application/json");
+  if (!history.length) {
+    alert("No saved history to export yet.");
+    return;
+  }
+
+  const jsonPayload = {
+    appVersion: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    count: history.length,
+    history
+  };
+
+  const csvRows = [
+    [
+      "timestamp",
+      "appVersion",
+      "filmId",
+      "film",
+      "boxIso",
+      "suggestedIso",
+      "ratedIso",
+      "effectiveIso",
+      "aperture",
+      "lensCompensation",
+      "exposureCompensation",
+      "meteringMode",
+      "zonePriority",
+      "filter",
+      "filterFactor",
+      "filterStops",
+      "lightingSource",
+      "estimatedEv",
+      "averageLuma",
+      "shadowMean",
+      "highlightMean",
+      "contrast",
+      "sceneBiasEv",
+      "meteredExposureLabel",
+      "calculatedExposureLabel",
+      "practicalExposureLabel",
+      "meteredExposureSeconds",
+      "calculatedExposureSeconds",
+      "practicalExposureSeconds",
+      "roundingStops",
+      "reciprocityApplied",
+      "imageFileName"
+    ]
+  ];
+
+  for (const item of history) {
+    csvRows.push([
+      item.timestamp ?? "",
+      item.appVersion ?? "",
+      item.film?.filmId ?? "",
+      item.film?.name ?? "",
+      item.film?.boxIso ?? "",
+      item.film?.suggestedIso ?? "",
+      item.film?.ratedIso ?? "",
+      item.film?.effectiveIso ?? "",
+      item.settings?.aperture ?? "",
+      item.settings?.lensCompensation ?? "",
+      item.settings?.exposureCompensation ?? "",
+      item.settings?.meteringMode ?? "",
+      item.settings?.zonePriority ?? "",
+      item.settings?.filterLabel ?? "",
+      item.settings?.filterFactor ?? "",
+      item.settings?.filterStops ?? "",
+      item.settings?.lightingSource ?? "",
+      item.scene?.estimatedEv ?? "",
+      item.scene?.averageLuma ?? "",
+      item.scene?.shadowMean ?? "",
+      item.scene?.highlightMean ?? "",
+      item.scene?.contrast ?? "",
+      item.scene?.sceneBiasEv ?? "",
+      item.result?.meteredExposureLabel ?? "",
+      item.result?.calculatedExposureLabel ?? "",
+      item.result?.practicalExposureLabel ?? "",
+      item.result?.meteredExposureSeconds ?? "",
+      item.result?.calculatedExposureSeconds ?? "",
+      item.result?.practicalExposureSeconds ?? "",
+      item.result?.roundingStops ?? "",
+      item.result?.reciprocityApplied ?? "",
+      item.image?.fileName ?? ""
+    ]);
+  }
+
+  const escapeCsv = (value) => {
+    const str = String(value ?? "");
+    if (/[",
+]/.test(str)) {
+      return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+  };
+
+  const csvContent = csvRows.map(row => row.map(escapeCsv).join(",")).join("
+");
+  const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g, "-");
+
+  downloadFile(`film_meter_history_${stamp}.json`, JSON.stringify(jsonPayload, null, 2), "application/json");
+  downloadFile(`film_meter_history_${stamp}.csv`, csvContent, "text/csv;charset=utf-8;");
 }
 
 function loadSavedSettings() {
@@ -492,7 +586,6 @@ function init() {
   $("newCalcBtn").addEventListener("click", () => setScreen("input"));
   $("saveResultBtn").addEventListener("click", saveResultToLocal);
   $("saveSettingsBtn").addEventListener("click", saveSettingsToLocal);
-  $("exportResultBtn").addEventListener("click", exportCurrentResult);
   $("exportHistoryBtn").addEventListener("click", exportHistory);
 
   updateAll();
