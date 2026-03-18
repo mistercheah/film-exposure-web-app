@@ -1,4 +1,4 @@
-const APP_VERSION = "v9.2";
+const APP_VERSION = "v9.3";
 
 const films = {
   fomapan200: { name: "Fomapan 200", boxIso: 200, suggestedIso: 160 },
@@ -385,6 +385,27 @@ function downloadFile(filename, content, type) {
   URL.revokeObjectURL(url);
 }
 
+
+function updateHistoryCount() {
+  const history = getSavedHistory();
+  const el = $("historyCount");
+  if (el) el.textContent = String(history.length);
+}
+
+function clearHistory() {
+  const history = getSavedHistory();
+  updateHistoryCount();
+  if (!history.length) {
+    alert("No saved history to clear.");
+    return;
+  }
+  const confirmed = confirm(`Clear all saved history entries (${history.length}) from this device?`);
+  if (!confirmed) return;
+  localStorage.removeItem("filmMeterHistory");
+  updateHistoryCount();
+  alert("Saved history cleared.");
+}
+
 function getSavedHistory() {
   try {
     return JSON.parse(localStorage.getItem("filmMeterHistory") || "[]");
@@ -398,6 +419,7 @@ function saveResultToLocal() {
   const history = getSavedHistory();
   history.push(payload);
   localStorage.setItem("filmMeterHistory", JSON.stringify(history));
+  updateHistoryCount();
   alert(`Result saved on this device. History count: ${history.length}.`);
 }
 
@@ -405,6 +427,7 @@ function saveResultToLocal() {
 
 function exportHistory() {
   const history = getSavedHistory();
+  updateHistoryCount();
   if (!history.length) {
     alert("No saved history to export yet.");
     return;
@@ -586,7 +609,9 @@ function init() {
   $("newCalcBtn").addEventListener("click", () => setScreen("input"));
   $("saveResultBtn").addEventListener("click", saveResultToLocal);
   $("exportHistoryBtn").addEventListener("click", exportHistory);
+  $("clearHistoryBtn").addEventListener("click", clearHistory);
 
+  updateHistoryCount();
   updateAll();
 }
 

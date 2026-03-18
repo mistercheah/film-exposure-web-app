@@ -1,18 +1,19 @@
-Film Exposure Web App v9.2
+Film Exposure Web App v9.3
 
 What is new in this version
-- Removed Save Settings button
-- Settings are now remembered automatically in the background
-- The app silently restores the last used values when reopened
+- Added visible history counter on the result screen
+- Added Clear History button
+- Clear History asks for confirmation before deleting entries
+- Keeps auto-remembered settings
 - Keeps Save Result
 - Keeps Export History (JSON + CSV)
-- Current version shown in the app: v9.2
+- Current version shown in the app: v9.3
 
-Workflow
-1. Use the app normally
-2. Your current settings are remembered automatically
-3. Tap Save Result when you want to log a shot
-4. Later, tap Export History to download JSON and CSV
+Recommended workflow
+1. In the field, tap Save Result for each shot you want to log
+2. Watch the history counter grow
+3. At home, tap Export History (JSON + CSV)
+4. After exporting, tap Clear History before starting a new roll if you want a clean log
 
 How to update on GitHub / Vercel
 1. Unzip this package.

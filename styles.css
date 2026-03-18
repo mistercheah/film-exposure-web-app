@@ -164,3 +164,22 @@ input[readonly]{color:#d2d8e4}
     grid-template-columns:1fr;
   }
 }
+
+
+.historyInfo{
+  margin:8px 0 12px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:rgba(255,255,255,.04);
+  color:#d9dfeb;
+  font-size:15px;
+}
+
+.dangerAction{
+  border-color:rgba(239,68,68,.25);
+  background:rgba(239,68,68,.08);
+}
+.dangerAction:hover{
+  background:rgba(239,68,68,.14);
+}
