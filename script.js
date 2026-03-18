@@ -1,4 +1,4 @@
-const APP_VERSION = "v9.1";
+const APP_VERSION = "v9.2";
 
 const films = {
   fomapan200: { name: "Fomapan 200", boxIso: 200, suggestedIso: 160 },
@@ -198,6 +198,7 @@ function describeSceneBias(sceneBias) {
 
 function updateAll() {
   const result = calculateExposure();
+  autoSaveCurrentSettings();
   const film = films[result.filmKey];
   const filter = filters[result.filterKey];
   const metered = `${secondsToLabel(result.meteredSeconds)} at ${result.aperture}`;
@@ -400,27 +401,6 @@ function saveResultToLocal() {
   alert(`Result saved on this device. History count: ${history.length}.`);
 }
 
-function saveSettingsToLocal() {
-  const filmKey = $("filmStock").value;
-  const payload = {
-    appVersion: APP_VERSION,
-    timestamp: new Date().toISOString(),
-    defaultFilm: filmKey,
-    boxIso: films[filmKey].boxIso,
-    suggestedIso: films[filmKey].suggestedIso,
-    ratedIso: Number($("ratedIso").value) || films[filmKey].suggestedIso,
-    filmId: $("filmId").value || "",
-    lensCompensation: Number($("lensCompensation").value || 0),
-    lightingSource: $("lightingSource").value,
-    preferredAperture: $("aperture").value,
-    exposureCompensation: Number($("compensation").value || 0),
-    meteringMode: $("meteringMode").value,
-    zonePriority: $("priority").value,
-    filter: $("filter").value
-  };
-  localStorage.setItem("filmMeterSettings", JSON.stringify(payload));
-  alert("Settings saved on this device.");
-}
 
 
 function exportHistory() {
@@ -526,6 +506,28 @@ function exportHistory() {
   downloadFile(`film_meter_history_${stamp}.csv`, csvContent, "text/csv;charset=utf-8;");
 }
 
+
+function autoSaveCurrentSettings() {
+  const filmKey = $("filmStock").value;
+  const payload = {
+    appVersion: APP_VERSION,
+    timestamp: new Date().toISOString(),
+    defaultFilm: filmKey,
+    boxIso: films[filmKey].boxIso,
+    suggestedIso: films[filmKey].suggestedIso,
+    ratedIso: Number($("ratedIso").value) || films[filmKey].suggestedIso,
+    filmId: $("filmId").value || "",
+    lensCompensation: Number($("lensCompensation").value || 0),
+    lightingSource: $("lightingSource").value,
+    preferredAperture: $("aperture").value,
+    exposureCompensation: Number($("compensation").value || 0),
+    meteringMode: $("meteringMode").value,
+    zonePriority: $("priority").value,
+    filter: $("filter").value
+  };
+  localStorage.setItem("filmMeterSettings", JSON.stringify(payload));
+}
+
 function loadSavedSettings() {
   try {
     const settings = JSON.parse(localStorage.getItem("filmMeterSettings") || "null");
@@ -583,7 +585,6 @@ function init() {
   $("backBtn").addEventListener("click", () => setScreen("input"));
   $("newCalcBtn").addEventListener("click", () => setScreen("input"));
   $("saveResultBtn").addEventListener("click", saveResultToLocal);
-  $("saveSettingsBtn").addEventListener("click", saveSettingsToLocal);
   $("exportHistoryBtn").addEventListener("click", exportHistory);
 
   updateAll();
