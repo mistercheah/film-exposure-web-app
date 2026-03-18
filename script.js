@@ -1,4 +1,4 @@
-const APP_VERSION = "v9.3";
+const APP_VERSION = "v9.4";
 
 const films = {
   fomapan200: { name: "Fomapan 200", boxIso: 200, suggestedIso: 160 },
@@ -220,7 +220,7 @@ function updateAll() {
   $("sumEffectiveIso").textContent = Math.round(result.effectiveRatedIso);
   $("sumFilter").textContent = filter.label;
   $("sumMetered").textContent = metered;
-  $("sumFinal").textContent = final;
+  $("sumFinal").textContent = practicalLabel;
   $("sumSceneEv").textContent = sceneEvValue;
 
   $("resFilm").textContent = film.name;
